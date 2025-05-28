@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interactive Menu Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body, html {
+      font-family: sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .form-pane, .preview-pane {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .form-pane {
+      background: #f5f5f5;
+      border-right: 1px solid #ccc;
+    }
+
+    .preview-pane {
+      background: #000;
+      color: white;
+      position: relative;
+    }
+
+    .carousel {
+      display: flex;
+      flex-direction: column;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      height: 100%;
+    }
+
+    .carousel::-webkit-scrollbar { display: none; }
+
+    .carousel-item {
+      position: relative;
+      scroll-snap-align: start;
+      flex: 0 0 100vh;
+      padding: 2rem;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-shadow: 1px 1px 4px black;
+    }
+
+    .carousel-item video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .item-card {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9));
+      padding: 1rem;
+      border-radius: 12px;
+      max-width: 90%;
+      text-align: center;
+      width: 100%;
+    }
+
+    .item-card img {
+      width: 75px;
+    }
+
+    @media(min-width: 768px) {
+      .item-card img {
+        width: 200px;
+      }
+    }
+
+    #receipt {
+      background: #222;
+      color: #0f0;
+      padding: 1rem;
+      font-family: monospace;
+      height: 200px;
+      overflow: auto;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      font-size: 1rem;
+    }
+
+    label {
+      margin-top: 1rem;
+      display: block;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="form-pane">
+    <h2>Create Up to 5 Menu Items</h2>
+    <div id="formItems"></div>
+    <button onclick="addItem()">➕ Add Item</button>
+
+    <h3>Payment Info</h3>
+    <label>PayPal Client ID:</label>
+    <input type="text" id="paypalId" placeholder="Enter your PayPal client ID" />
+    <label>Google Pay ID:</label>
+    <input type="text" placeholder="(Placeholder)" />
+    <label>Square ID:</label>
+    <input type="text" placeholder="(Placeholder)" />
+    <button onclick="submitPage()">✅ Submit & View</button>
+  </div>
+
+  <div class="preview-pane">
+    <div class="carousel" id="carousel"></div>
+  </div>
+</div>
+
+<div id="receipt">🧾 Receipt:\n</div>
+
+<script>
+let itemCount = 0;
+let cart = [];
+
+function addItem() {
+  if (itemCount >= 5) return alert("Max 5 items allowed.");
+  itemCount++;
+
+  const form = document.createElement("div");
+  form.innerHTML = `
+    <h4>Item ${itemCount}</h4>
+    <label>Item Title:</label><input id="title${itemCount}" />
+    <label>Type Label:</label><input id="type${itemCount}" />
+    <label>Image URL:</label><input id="img${itemCount}" />
+    <label>Video URL:</label><input id="vid${itemCount}" />
+    <label>Description:</label><textarea id="desc${itemCount}"></textarea>
+    <label>Ingredients:</label><textarea id="ing${itemCount}"></textarea>
+    <label>Price:</label><input id="price${itemCount}" />
+  `;
+  document.getElementById('formItems').appendChild(form);
+}
+
+function submitPage() {
+  const carousel = document.getElementById('carousel');
+  carousel.innerHTML = ''; // clear
+
+  for (let i = 1; i <= itemCount; i++) {
+    const title = document.getElementById(`title${i}`).value;
+    const type = document.getElementById(`type${i}`).value;
+    const img = document.getElementById(`img${i}`).value;
+    const vid = document.getElementById(`vid${i}`).value;
+    const desc = document.getElementById(`desc${i}`).value;
+    const ing = document.getElementById(`ing${i}`).value;
+    const price = parseFloat(document.getElementById(`price${i}`).value).toFixed(2);
+
+    const item = document.createElement('div');
+    item.className = 'carousel-item';
+    item.innerHTML = `
+      <video autoplay muted loop playsinline><source src="${vid}" type="video/mp4"></video>
+      <div class="item-card" ondblclick="addToCart('${title}', ${price})">
+        <img src="${img}" alt="${title}" />
+        <h3>${title} (${type})</h3>
+        <p>${desc}</p>
+        <p><em>${ing}</em></p>
+        <strong>$${price}</strong>
+      </div>
+    `;
+    carousel.appendChild(item);
+  }
+}
+
+function addToCart(title, price) {
+  cart.push({ title, price });
+  let receipt = "🧾 Receipt:\n";
+  let total = 0;
+  cart.forEach(item => {
+    receipt += `• ${item.title}: $${item.price.toFixed(2)}\n`;
+    total += item.price;
+  });
+  receipt += `\nTotal: $${total.toFixed(2)}\n\nClick "Pay" to proceed.`;
+  document.getElementById('receipt').textContent = receipt;
+}
+
+// You can embed PayPal dynamically using the collected ID
+</script>
+</body>
+</html>
