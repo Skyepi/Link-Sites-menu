@@ -2,192 +2,304 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Create Menu Items</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu Snap & Scroll</title>
   <style>
-    body {
-      font-family: sans-serif;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: sans-serif;
+      overflow: hidden;
+      background: #000;
+      color: white;
+    }
+    button{
+      width:100%;
+      height: 50px;
+      background-color: rgb(0, 140, 255);
+    }
+
+    .container {
       display: flex;
-      height: 100vh;
+      flex-direction: column;
+      height: 100%;
     }
-    .form-pane {
-      width: 50%;
-      padding: 1rem;
-      overflow-y: auto;
-      border-right: 1px solid #ccc;
-    }
-    .preview-pane {
-      width: 50%;
-      padding: 1rem;
-    }
-    input, textarea, select {
-      width: 100%;
-      margin-bottom: 0.75rem;
+
+    .categories {
+      display: flex;
+      overflow-x: auto;
+      background: #111;
       padding: 0.5rem;
+      scroll-snap-type: x mandatory;
     }
-    section {
-      border: 1px solid #ccc;
-      padding: 1rem;
+
+    .category {
+      flex: 0 0 auto;
+      padding: 0.5rem 1rem;
+      background: #444;
+      color: white;
+      margin-right: 0.5rem;
       border-radius: 8px;
-      margin-bottom: 1.5rem;
+      cursor: pointer;
+      white-space: nowrap;
+      scroll-snap-align: start;
     }
-    button {
-      padding: 0.6rem 1.2rem;
-      margin: 0.5rem 0.25rem;
+
+    .category.active {
+      background: #ff4a4a;
+    }
+
+    .preview-pane {
+      flex: 1;
+      overflow-x: auto;
+      display: flex;
+      scroll-snap-type: x mandatory;
+    }
+
+    .category-column {
+      flex: 0 0 100%;
+      height: 100%;
+      overflow-y: auto;
+      scroll-snap-type: y mandatory;
+      position: relative;
+    }
+
+    .item-slide {
+      scroll-snap-align: start;
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .videoId {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .item-card {
+      position: relative;
+      z-index: 2;
+      padding: 1rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .item-card::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      z-index: -1;
+    }
+
+    .item-card img {
+      width: 100px;
+      height: auto;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .item-card img {
+        width: 50px;
+      }
+    }
+
+    #receipt {
+      background: #111;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    #receipt button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
       cursor: pointer;
     }
-    .flex {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+
+    #cartItems {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .remove {
+      overflow: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-margin: 0px;
     }
   </style>
 </head>
-<body>
-  <div class="form-pane">
-    <h2>Create Menu</h2>
-
-    <label>Category Name:</label>
-    <input type="text" id="categoryName" placeholder="e.g. Breakfast Specials" />
-    <button onclick="addCategory()">➕ Add Category</button>
-
-    <div id="categories"></div>
-
-    <h3>Payment Info</h3>
-    <label>PayPal Client ID:</label>
-    <input type="text" id="paypalId" placeholder="Enter your PayPal client ID">
-    <label>Google Pay ID:</label>
-    <input type="text" placeholder="(Placeholder)">
-    <label>Square ID:</label>
-    <input type="text" placeholder="(Placeholder)">
-
-    <button onclick="submitPage()">✅ Submit & View</button>
-  </div>
-
-
-<div>
-    <div class="container">
-        <div class="left-pane">
-              <div class="preview-pane">
-    <div class="carousel" id="carousel"></div>
-    
-  </div>
-        </div>
-        <div class="right-pane">
-            <h2>Live Preview</h2>
-        <div class="preview-pane" id="previewCard">
-      <img id="previewImg" src="https://via.placeholder.com/300x200?text=Preview" alt="Preview Image" />
-      <h3 id="previewTitle">Title here</h3>
-      <p id="previewDesc">Description here</p>
-      <strong id="previewPrice">$0.00</strong>
+<body class="remove">
+  <div class="container remove">
+    <div class="categories" id="category">
+      <div id="receipt">
+        🧾 Receipt: <span id="cartTotal">$0.00</span>
+        <div id="cartItems"></div>
+      </div>
     </div>
-    <div id="receipt">🧾 Receipt:\n</div>
+    <div class="preview-pane" id="previewPane"></div>
+      <button ondblclick="alert('Payment Processed!')">Pay</button>
   </div>
-</div>
-</div>
+
 <script>
-let categories = [];
-let maxItemsPerCategory = 5;
+  const CategoryData = {
+    services: [
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      }
+    ],
+    service: [  <!-- ✅ COMMA added before this array -->
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      },
+      {
+        name: "Exhaust Hood System Cleaning",
+        title: "5'-10' Hood (Restaurants)",
+        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
+        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
+        price: 1500,
+        video: "YO2sl_2y9H4"
+      }
+    ]
+  };
 
-function addCategory() {
-  const name = document.getElementById('categoryName').value.trim();
-  if (!name) return alert("Please enter a category name.");
+  const categoryContainer = document.getElementById('category');
+  const previewPane = document.getElementById('previewPane');
 
-  const categoryId = `cat-${Date.now()}`;
-  categories.push({ id: categoryId, name, items: [] });
+  function createYouTubeEmbed(videoId) {
+    return `
+      <iframe class="videoId"
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen></iframe>`;
+  }
 
-  const section = document.createElement("section");
-  section.id = categoryId;
-  section.innerHTML = `
-    <div class="flex">
-      <h3>${name}</h3>
-      <button onclick="addItem('${categoryId}')">➕ Add Item</button>
-    </div>
-    <div class="item-list"></div>
-  `;
-  document.getElementById("categories").appendChild(section);
-  document.getElementById('categoryName').value = "";
-}
+  function renderCategories() {
+    Object.keys(CategoryData).forEach((cat, i) => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'category' + (i === 0 ? ' active' : '');
+      catDiv.textContent = cat;
+      catDiv.onclick = () => {
+        document.querySelectorAll('.category').forEach(el => el.classList.remove('active'));
+        catDiv.classList.add('active');
+        previewPane.scrollTo({
+          left: i * window.innerWidth,
+          behavior: 'smooth'
+        });
+      };
+      categoryContainer.appendChild(catDiv);
 
-function addItem(categoryId) {
-  const category = categories.find(c => c.id === categoryId);
-  if (category.items.length >= maxItemsPerCategory) return alert("Max 5 items per category.");
-
-  const itemIndex = category.items.length + 1;
-  const itemDiv = document.createElement("div");
-  itemDiv.className = "item";
-  itemDiv.innerHTML = `
-    <div class="flex">
-      <h4>Item ${itemIndex}</h4>
-      <button onclick="this.closest('.item').remove()">❌ Remove</button>
-    </div>
-    <input placeholder="Item Title" class="title" />
-    <input placeholder="Type Label" class="type" />
-    <input placeholder="Image URL" class="image" />
-    <input placeholder="Video URL" class="video" />
-    <textarea placeholder="Description" class="desc"></textarea>
-    <textarea placeholder="Ingredients" class="ing"></textarea>
-    <input placeholder="Price" class="price" />
-  `;
-  document.querySelector(`#${categoryId} .item-list`).appendChild(itemDiv);
-  category.items.push(itemIndex); // tracking count only
-}
-
-let cart = [];
-
-function submitPage() {
-  const carousel = document.getElementById('carousel');
-  carousel.innerHTML = '';
-  cart = [];
-
-  categories.forEach(category => {
-    const itemList = document.querySelector(`#${category.id} .item-list`);
-    const items = itemList.querySelectorAll('.item');
-
-    items.forEach((item, idx) => {
-      const title = item.querySelector('.title').value;
-      const type = item.querySelector('.type').value;
-      const img = item.querySelector('.image').value;
-      const vid = item.querySelector('.video').value;
-      const desc = item.querySelector('.desc').value;
-      const ing = item.querySelector('.ing').value;
-      const price = parseFloat(item.querySelector('.price').value).toFixed(2);
-
-      const itemCard = document.createElement('div');
-      itemCard.className = 'carousel-item';
-      itemCard.innerHTML = `
-        <video autoplay muted loop playsinline width="200"><source src="${vid}" type="video/mp4"></video>
-        <div class="item-card" ondblclick="addToCart('${title}', ${price})">
-          <img src="${img}" alt="${title}" width="100" />
-          <h4>${title} (${type})</h4>
-          <p>${desc}</p>
-          <p><em>${ing}</em></p>
-          <strong>$${price}</strong>
-        </div>
-      `;
-      carousel.appendChild(itemCard);
+      const categoryColumn = document.createElement('div');
+      categoryColumn.className = 'category-column';
+      CategoryData[cat].forEach(item => {
+        const slide = document.createElement('div');
+        slide.className = 'item-slide';
+        slide.innerHTML = `
+          ${createYouTubeEmbed(item.video)}
+          <div class="item-card">
+            <img src="${item.img}" alt="${item.title}" />
+            <h3>${item.title}</h3>
+            <p>${item.desc}</p>
+            <strong>Price: $${item.price.toFixed(2)}</strong>
+          </div>`;
+        categoryColumn.appendChild(slide);
+      });
+      previewPane.appendChild(categoryColumn);
     });
-  });
+  }
 
-  updateReceipt();
-}
-
-function addToCart(title, price) {
-  cart.push({ title, price });
-  updateReceipt();
-}
-
-function updateReceipt() {
-  let receipt = "🧾 Receipt:\n";
-  let total = 0;
-  cart.forEach(item => {
-    receipt += `• ${item.title}: $${item.price.toFixed(2)}\n`;
-    total += item.price;
-  });
-  receipt += `\nTotal: $${total.toFixed(2)}\nClick "Pay" to proceed.`;
-  document.getElementById('receipt').textContent = receipt;
-}
+  window.onload = () => {
+    renderCategories();
+  };
 </script>
+
 </body>
 </html>
