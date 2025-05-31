@@ -175,6 +175,24 @@
       scroll-snap-type: mandatory;
       scroll-margin: 0px;
     }
+    /* Hide scrollbar but still allow scrolling */
+body::-webkit-scrollbar {
+  display: none;
+}
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+  overflow-y: scroll;
+}
+#cartItems button:hover {
+  background: #cc0000;
+}
+.price {
+  color: green;
+  font-weight: bold;
+}
+
+
   </style>
 </head>
 <body class="remove">
@@ -182,7 +200,7 @@
     <div class="categories" id="categories"></div>
     <div class="preview-pane" id="previewPane"><div class="box "></div></div>
     <div id="receipt">
-      🧾 Receipt: <span id="cartTotal">$0.00</span>
+      🧾 Receipt: <span class="price"></span>id="cartTotal">$0.00</span>
       <div id="cartItems"></div>
     </div>
      <button ondblclick="alert('Payment Processed!')">Pay</button>
@@ -348,6 +366,8 @@
     renderCategories();
     setTimeout(attachTapHandlers, 100);
   };
+</script>
+<script>element.innerHTML = `<span class="price">$${price.toFixed(2)}</span>`;
 </script>
 
 </body>
