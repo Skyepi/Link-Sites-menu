@@ -280,57 +280,75 @@
       renderCategories();
     };
   </script></div>
-  
+
   <script>
-      let cartTotal = 0;
-    let cartItems = [];
+  let cartTotal = 0;
+  let cartItems = [];
 
-    function addToCart(title, price) {
-      cartTotal += price;
-      cartItems.push({ title, price });
-      document.getElementById('cartTotal').textContent = `$${cartTotal.toFixed(2)}`;
-      document.getElementById('cartItems').innerHTML = cartItems.map(item => `<div>${item.title} - $${item.price.toFixed(2)}</div>`).join('');
-    }
+  function updateReceipt() {
+    const cartTotalEl = document.getElementById('cartTotal');
+    const cartItemsEl = document.getElementById('cartItems');
 
-    function attachTapHandlers() {
-      document.querySelectorAll('.item-slide').forEach(slide => {
-        let tapped = false;
+    cartTotalEl.textContent = `$${cartTotal.toFixed(2)}`;
+    cartItemsEl.innerHTML = cartItems.map((item, index) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span>${item.title} - $${item.price.toFixed(2)}</span>
+        <button onclick="removeItem(${index})" style="margin-left: 10px; background:red; border:none; color:white; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
+      </div>
+    `).join('');
+  }
 
-        const handleClick = () => {
-          const title = slide.querySelector('h3')?.textContent || 'Item';
-          const priceText = slide.querySelector('strong')?.textContent || '';
-          const match = priceText.match(/\$([\d.]+)/);
-          if (match) {
-            const price = parseFloat(match[1]);
-            addToCart(title, price);
-          }
-        };
+  function addToCart(title, price) {
+    cartItems.push({ title, price });
+    cartTotal += price;
+    updateReceipt();
+  }
 
-        slide.addEventListener('dblclick', handleClick);
+  function removeItem(index) {
+    const removed = cartItems.splice(index, 1)[0];
+    cartTotal -= removed.price;
+    updateReceipt();
+  }
 
-        // Double tap for mobile
-        slide.addEventListener('touchend', (e) => {
-          if (tapped) {
-            handleClick();
-            tapped = false;
-          } else {
-            tapped = true;
-            setTimeout(() => { tapped = false; }, 300);
-          }
-        });
+  function attachTapHandlers() {
+    document.querySelectorAll('.item-slide').forEach(slide => {
+      let tapped = false;
+
+      const handleClick = () => {
+        const title = slide.querySelector('h3')?.textContent || 'Item';
+        const priceText = slide.querySelector('strong')?.textContent || '';
+        const match = priceText.match(/\$([\d.]+)/);
+        if (match) {
+          const price = parseFloat(match[1]);
+          addToCart(title, price);
+        }
+      };
+
+      slide.addEventListener('dblclick', handleClick);
+
+      slide.addEventListener('touchend', () => {
+        if (tapped) {
+          handleClick();
+          tapped = false;
+        } else {
+          tapped = true;
+          setTimeout(() => { tapped = false; }, 300);
+        }
       });
-    }
+    });
+  }
 
-    window.onload = () => {
-      renderCategories();
-      setTimeout(attachTapHandlers, 100); // Delay to ensure DOM is built
-    };
+  function payWithPayPal() {
+    const paypalUsername = 'yourusername'; // Change this!
+    const url = `https://www.paypal.me/${paypalUsername}/${cartTotal.toFixed(2)}`;
+    window.open(url, '_blank');
+  }
 
-    function payWithPayPal() {
-      const paypalUsername = 'yourusername'; // Replace with your PayPal.me username
-      const url = `https://www.paypal.me/${paypalUsername}/${cartTotal.toFixed(2)}`;
-      window.open(url, '_blank');
-    }
+  window.onload = () => {
+    renderCategories();
+    setTimeout(attachTapHandlers, 100);
+  };
 </script>
+
 </body>
 </html>
