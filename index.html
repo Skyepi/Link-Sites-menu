@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menu Snap & Scroll</title>
+
   <style>
     * {
       box-sizing: border-box;
@@ -11,36 +12,23 @@
       padding: 0;
     }
 
-    html, body {
-      height: 100%;
+    body {
       font-family: sans-serif;
-      overflow: hidden;
       background: #000;
       color: white;
-    }
-        p   {
-        background-color: hsla(3, 3%, 16%, 0.745);
-        width: 50%;
-        height: 125px;
-        z-index: 3;
-        border-radius: 0px 0px 25px 25px;
-        margin-bottom: 15px;
-        text-wrap:inherit;
-        padding: 5px;
-    }
-        h1,h2,h3,h4,h5{
-        background-color: hsla(3, 3%, 16%, 0.745);
-        width: 50%;
-        height: 125px;
-        z-index: 3;
-        border-radius: 25px 25px 0px 0px;
-        padding: 10px;
+      overflow-x: hidden;
     }
 
-    .container {
+    .top-bar {
       display: flex;
-      flex-direction: column;
-      height: 100%;
+      align-items: center;
+      padding: 1rem;
+      background-color: #111;
+    }
+
+    .logo {
+      height: 40px;
+      margin-right: 1rem;
     }
 
     .categories {
@@ -49,7 +37,6 @@
       background: #111;
       padding: 0.5rem;
       scroll-snap-type: x mandatory;
-      width: 100%;
     }
 
     .category {
@@ -62,8 +49,6 @@
       cursor: pointer;
       white-space: nowrap;
       scroll-snap-align: start;
-      width: 25%;
-      height: 45px;
     }
 
     .category.active {
@@ -71,33 +56,22 @@
     }
 
     .preview-pane {
-      flex: 1;
-      overflow-x: auto;
       display: flex;
+      overflow-x: auto;
       scroll-snap-type: x mandatory;
-    }
-    button{
-        width: 100%;
-        height: 45px;
-        background-color: rgb(15, 117, 212);
     }
 
     .category-column {
       flex: 0 0 100%;
-      height: 100%;
-      overflow-y: auto;
-      scroll-snap-type: y mandatory;
-      position: relative;
-    }
-    #cartTotal {
-        color:#4caf50;
-        -webkit-text-fill-color: #4caf50;
+      display: flex;
+      flex-direction: column;
+      scroll-snap-align: start;
     }
 
     .item-slide {
-      scroll-snap-align: start;
       position: relative;
       height: 100vh;
+      scroll-snap-align: start;
       overflow: hidden;
     }
 
@@ -108,131 +82,254 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
-
     }
 
     .item-card {
-      position: relative;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 2;
       padding: 1rem;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      width: 90%;
+      max-width: 350px;
       text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
     }
-
-    .item-card::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 40%;
-      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-      z-index: -1;
-    }
-
+.stay{
+  position: sticky;
+}
     .item-card img {
-      width: 15%;
-      height: auto;
+      width: 100px;
+      height: 100px;
       border-radius: 15%;
       margin-bottom: 1rem;
-      height: 125px;
+    }
+
+    .price {
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .added-emoji {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5rem;
+      z-index: 5;
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    #orderSummaryBar {
+      height: 50px;
+      width: 100%;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .green-button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 1rem;
+    }
+
+    #receiptPopup {
+      position: fixed;
+      bottom: 50px;
+      left: 0;
+      width: 100%;
+      max-height: 50%;
+      background-color: rgba(34, 34, 34, 0.95);
+      overflow-y: auto;
+      padding: 1rem;
+      z-index: 1001;
+      display: none;
+      color: white;
+    }
+
+    #receiptItems {
+      list-style: none;
+      padding: 0;
+    }
+
+    #receiptItems li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #555;
+    }
+
+    #receiptItems li button {
+      background: #ff4a4a;
+      color: white;
+      border: none;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      cursor: pointer;
     }
 
     @media (max-width: 768px) {
       .item-card img {
-        width: 50px;
+        width: 80px;
+        height: 80px;
       }
-    }
-
-    #receipt {
-      background: #111;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    #receipt button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #cartItems {
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-    }
-
-    .remove {
-      overflow:hidden;
-      scroll-snap-type: mandatory;
-      scroll-margin: 0px;
     }
   </style>
 </head>
-<body class="remove">
-  <div class="container remove">
-    <div class="categories" id="categories"></div>
-    <div class="preview-pane" id="previewPane"><div class="box "></div></div>
-    <div id="receipt">
-      🧾 Receipt: <span id="cartTotal">$0.00</span>
-      <div id="cartItems"></div>
+<body>
+
+  <audio id="knockSound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+
+  <div class="top-bar stay">
+    <img src="https://www.canva.com/design/DAGWGDcNRUI/soEQvO8N4hBX4dQmVcjHNg/view?utm_content=DAGWGDcNRUI&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h5a89b96314" alt="Logo" class="logo">
+  </div>
+
+  <div class="categories" id="categories"></div>
+  <div class="preview-pane" id="previewPane"></div>
+
+  <div id="orderSummaryBar">
+    <div>🛒 Order Summary</div>
+    <div>Total: <span class="price" id="cartTotal">$0.00</span></div>
+    <div>
+      <button onclick="payWithPayPal()" class="green-button">Continue</button>
+      <button onclick="openReceipt()" class="green-button">Receipt</button>
     </div>
-     <button ondblclick="alert('Payment Processed!')">Pay</button>
+  </div>
+
+  <div id="receiptPopup">
+    <div class="receipt-content">
+      <h2>Your Order</h2>
+      <ul id="receiptItems"></ul>
+      <button onclick="closeReceipt()" class="green-button">Close</button>
     </div>
- <div class="box">
+  </div>
+
   <script>
     const Data = {
-      Services: [
-        {
-          title: "Exhaust Hood Cleaning",
-          desc: "Pressure washing is using a strong spray of water to clean dirt and grime off things like walls, cars, or sidewalks.",
-          img: "https://images.openai.com/thumbnails/d550c15636ac3165a86581a9c62694cb.webp",
-          price: 450,
-          video: "Hkm7EW2d7rg"
-        },
-        {
-          title: "Exhaust Hood Cleaning",
-          desc: "Pressure washing is using a strong spray of water to clean dirt and grime off things like walls, cars, or sidewalks.",
-          img: "https://images.openai.com/thumbnails/d550c15636ac3165a86581a9c62694cb.webp",
-          price: 500,
-          video: "hUHubFokfpg"
-        }
-      ],
-      Meals: [
-        {
-          title: "Grilled Chicken",
-          desc: "Juicy grilled chicken with herbs.",
-          img: "https://via.placeholder.com/100",
-          price: 12.99,
-          video: "dQw4w9WgXcQ"
-        }
-      ],
-      Desserts: [
-        {
-          title: "Chocolate Cake",
-          desc: "Rich dark chocolate with fudge.",
-          img: "https://via.placeholder.com/100",
-          price: 6.75,
-          video: "C0DPdy98e4c"
-        }
-      ]
-    };
+  FoodTruck: [
+    {
+      title: "Spicy Tacos",
+      desc: "Grilled chicken tacos with salsa and avocado.",
+      img: "https://via.placeholder.com/100?text=Spicy+Tacos",
+      price: 8.99,
+      video: "Qj3di2uP7gk" // How to Make Spicy Tacos
+    },
+    {
+      title: "Baja Fish Tacos",
+      desc: "Beer-battered fish with cabbage slaw and lime crema.",
+      img: "https://via.placeholder.com/100?text=Baja+Fish+Tacos",
+      price: 9.50,
+      video: "YYVP0k5cyoY" // Baja Fish Tacos Recipe
+    },
+    {
+      title: "Korean BBQ Wrap",
+      desc: "Grilled beef with kimchi and sesame sauce in a soft wrap.",
+      img: "https://via.placeholder.com/100?text=Korean+BBQ+Wrap",
+      price: 10.25,
+      video: "y_NVO92D2YQ" // Korean BBQ Wraps
+    }
+  ],
+
+  Drinks: [
+    {
+      title: "Hibiscus Iced Tea",
+      desc: "A refreshing, floral herbal tea served over ice.",
+      img: "https://via.placeholder.com/100?text=Hibiscus+Tea",
+      price: 3.25,
+      video: "qpJ5Qc1JOaI" // Hibiscus Iced Tea Recipe
+    },
+    {
+      title: "Mexican Horchata",
+      desc: "Sweet, creamy cinnamon rice milk drink, served chilled.",
+      img: "https://via.placeholder.com/100?text=Horchata",
+      price: 3.50,
+      video: "S_98FJGEKfU" // Authentic Mexican Horchata
+    },
+    {
+      title: "Fresh Lime Agua Fresca",
+      desc: "Classic agua fresca made with fresh lime juice and mint.",
+      img: "https://via.placeholder.com/100?text=Agua+Fresca",
+      price: 2.75,
+      video: "i_Hs3LF_hGo" // Agua Fresca Recipes
+    }
+  ],
+
+  Desserts: [
+    {
+      title: "Churros with Chocolate",
+      desc: "Crispy cinnamon-sugar churros with a side of warm chocolate.",
+      img: "https://via.placeholder.com/100?text=Churros",
+      price: 4.25,
+      video: "Wck9i6OkImA" // Churros + Chocolate Sauce
+    },
+    {
+      title: "Flan",
+      desc: "Creamy caramel custard dessert, a Latin American favorite.",
+      img: "https://via.placeholder.com/100?text=Flan",
+      price: 3.99,
+      video: "NPaXCrR3fKo" // Homemade Flan
+    },
+    {
+      title: "Fried Ice Cream",
+      desc: "A frozen treat wrapped in crispy batter, then flash-fried.",
+      img: "https://via.placeholder.com/100?text=Fried+Ice+Cream",
+      price: 5.50,
+      video: "wY7dCDJdBfM" // Fried Ice Cream
+    }
+  ],
+
+  Specials: [
+    {
+      title: "Quesabirria Tacos",
+      desc: "Slow-cooked beef birria tacos with cheese, dipped in consomé.",
+      img: "https://via.placeholder.com/100?text=Quesabirria",
+      price: 11.99,
+      video: "wWLDgAfNwqE" // Quesabirria Tacos
+    },
+    {
+      title: "Elote (Mexican Street Corn)",
+      desc: "Charred corn slathered in mayo, cotija, lime, and chili powder.",
+      img: "https://via.placeholder.com/100?text=Elote",
+      price: 4.75,
+      video: "4dqSH-HwLfU" // Authentic Elote
+    },
+    {
+      title: "Torta Sandwich",
+      desc: "Stuffed Mexican sandwich with meats, avocado, and jalapeños.",
+      img: "https://via.placeholder.com/100?text=Torta",
+      price: 9.25,
+      video: "9iDLxMmL0MI" // Mexican Torta
+    }
+  ]
+};
+
 
     function createYouTubeEmbed(videoId) {
       return `
         <iframe class="videoId"
           src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0"
           frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"
-          referrerpolicy="strict-origin-when-cross-origin"
+          allow="autoplay; encrypted-media"
           allowfullscreen>
         </iframe>`;
     }
@@ -274,81 +371,88 @@
 
         previewPane.appendChild(categoryColumn);
       });
+
+      setTimeout(attachTapHandlers, 100); // Ensure DOM is ready
     }
 
-    window.onload = () => {
-      renderCategories();
-    };
-  </script></div>
+    let cartTotal = 0;
+    let cartItems = [];
 
-  <script>
-  let cartTotal = 0;
-  let cartItems = [];
+    function updateReceipt() {
+      document.getElementById('cartTotal').textContent = `$${cartTotal.toFixed(2)}`;
+      const receiptList = document.getElementById('receiptItems');
+      receiptList.innerHTML = '';
+      cartItems.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${item.title} - $${item.price.toFixed(2)} 
+          <button onclick="removeItem(${index})">X</button>`;
+        receiptList.appendChild(li);
+      });
+    }
 
-  function updateReceipt() {
-    const cartTotalEl = document.getElementById('cartTotal');
-    const cartItemsEl = document.getElementById('cartItems');
+    function addToCart(title, price) {
+      cartItems.push({ title, price });
+      cartTotal += price;
+      updateReceipt();
+    }
 
-    cartTotalEl.textContent = `$${cartTotal.toFixed(2)}`;
-    cartItemsEl.innerHTML = cartItems.map((item, index) => `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <span>${item.title} - $${item.price.toFixed(2)}</span>
-        <button onclick="removeItem(${index})" style="margin-left: 10px; background:red; border:none; color:white; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
-      </div>
-    `).join('');
-  }
+    function removeItem(index) {
+      cartTotal -= cartItems[index].price;
+      cartItems.splice(index, 1);
+      updateReceipt();
+    }
 
-  function addToCart(title, price) {
-    cartItems.push({ title, price });
-    cartTotal += price;
-    updateReceipt();
-  }
+    function openReceipt() {
+      document.getElementById('receiptPopup').style.display = 'block';
+    }
 
-  function removeItem(index) {
-    const removed = cartItems.splice(index, 1)[0];
-    cartTotal -= removed.price;
-    updateReceipt();
-  }
+    function closeReceipt() {
+      document.getElementById('receiptPopup').style.display = 'none';
+    }
 
-  function attachTapHandlers() {
-    document.querySelectorAll('.item-slide').forEach(slide => {
-      let tapped = false;
+    function attachTapHandlers() {
+      document.querySelectorAll('.item-slide').forEach(slide => {
+        let tappedOnce = false;
+        let timeoutId;
 
-      const handleClick = () => {
         const title = slide.querySelector('h3')?.textContent || 'Item';
         const priceText = slide.querySelector('strong')?.textContent || '';
         const match = priceText.match(/\$([\d.]+)/);
-        if (match) {
-          const price = parseFloat(match[1]);
-          addToCart(title, price);
-        }
-      };
+        const price = match ? parseFloat(match[1]) : 0;
 
-      slide.addEventListener('dblclick', handleClick);
-
-      slide.addEventListener('touchend', () => {
-        if (tapped) {
-          handleClick();
-          tapped = false;
-        } else {
-          tapped = true;
-          setTimeout(() => { tapped = false; }, 300);
-        }
+        slide.addEventListener('click', () => {
+          const knockSound = document.getElementById('knockSound');
+          if (!tappedOnce) {
+            tappedOnce = true;
+            showEmoji(slide, '👈');
+            timeoutId = setTimeout(() => {
+              tappedOnce = false;
+            }, 400);
+          } else {
+            clearTimeout(timeoutId);
+            tappedOnce = false;
+            addToCart(title, price);
+            showEmoji(slide, '✅');
+            knockSound.play();
+          }
+        });
       });
-    });
-  }
+    }
 
-  function payWithPayPal() {
-    const paypalUsername = 'yourusername'; // Change this!
-    const url = `https://www.paypal.me/${paypalUsername}/${cartTotal.toFixed(2)}`;
-    window.open(url, '_blank');
-  }
+    function showEmoji(slide, emoji) {
+      const emojiSpan = document.createElement('span');
+      emojiSpan.className = 'added-emoji';
+      emojiSpan.textContent = emoji;
+      slide.appendChild(emojiSpan);
+      setTimeout(() => emojiSpan.remove(), 1000);
+    }
 
-  window.onload = () => {
+    function payWithPayPal() {
+      alert("Redirecting to PayPal... 🤑");
+    }
+
+    // Initialize
     renderCategories();
-    setTimeout(attachTapHandlers, 100);
-  };
-</script>
-
+  </script>
 </body>
 </html>
