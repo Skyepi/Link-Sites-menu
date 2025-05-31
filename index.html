@@ -18,10 +18,23 @@
       background: #000;
       color: white;
     }
-    button{
-      width:100%;
-      height: 50px;
-      background-color: rgb(0, 140, 255);
+        p   {
+        background-color: hsla(3, 3%, 16%, 0.745);
+        width: 50%;
+        height: 125px;
+        z-index: 3;
+        border-radius: 0px 0px 25px 25px;
+        margin-bottom: 15px;
+        text-wrap:inherit;
+        padding: 5px;
+    }
+        h1,h2,h3,h4,h5{
+        background-color: hsla(3, 3%, 16%, 0.745);
+        width: 50%;
+        height: 125px;
+        z-index: 3;
+        border-radius: 25px 25px 0px 0px;
+        padding: 10px;
     }
 
     .container {
@@ -36,6 +49,7 @@
       background: #111;
       padding: 0.5rem;
       scroll-snap-type: x mandatory;
+      width: 100%;
     }
 
     .category {
@@ -48,6 +62,8 @@
       cursor: pointer;
       white-space: nowrap;
       scroll-snap-align: start;
+      width: 25%;
+      height: 45px;
     }
 
     .category.active {
@@ -60,6 +76,11 @@
       display: flex;
       scroll-snap-type: x mandatory;
     }
+    button{
+        width: 100%;
+        height: 45px;
+        background-color: rgb(15, 117, 212);
+    }
 
     .category-column {
       flex: 0 0 100%;
@@ -67,6 +88,10 @@
       overflow-y: auto;
       scroll-snap-type: y mandatory;
       position: relative;
+    }
+    #cartTotal span{
+        color:#4caf50;
+        -webkit-text-fill-color: #4caf50;
     }
 
     .item-slide {
@@ -83,6 +108,7 @@
       height: 100%;
       object-fit: cover;
       z-index: 1;
+
     }
 
     .item-card {
@@ -109,10 +135,11 @@
     }
 
     .item-card img {
-      width: 100px;
+      width: 15%;
       height: auto;
-      border-radius: 50%;
+      border-radius: 15%;
       margin-bottom: 1rem;
+      height: 125px;
     }
 
     @media (max-width: 768px) {
@@ -144,162 +171,114 @@
     }
 
     .remove {
-      overflow: hidden;
-      scroll-snap-type: x mandatory;
+      overflow:hidden;
+      scroll-snap-type: mandatory;
       scroll-margin: 0px;
     }
   </style>
 </head>
 <body class="remove">
   <div class="container remove">
-    <div class="categories" id="category">
-      <div id="receipt">
-        🧾 Receipt: <span id="cartTotal">$0.00</span>
-        <div id="cartItems"></div>
-      </div>
+    <div class="categories" id="categories"></div>
+    <div class="preview-pane" id="previewPane"><div class="box "></div></div>
+    <div id="receipt">
+      🧾 Receipt: <span id="cartTotal">$0.00</span>
+      <div id="cartItems"></div>
     </div>
-    <div class="preview-pane" id="previewPane"></div>
-      <button ondblclick="alert('Payment Processed!')">Pay</button>
-  </div>
+     <button ondblclick="alert('Payment Processed!')">Pay</button>
+    </div>
+ <div class="box">
+  <script>
+    const Data = {
+      Services: [
+        {
+          title: "Exhaust Hood Cleaning",
+          desc: "Pressure washing is using a strong spray of water to clean dirt and grime off things like walls, cars, or sidewalks.",
+          img: "https://images.openai.com/thumbnails/d550c15636ac3165a86581a9c62694cb.webp",
+          price: 450,
+          video: "Hkm7EW2d7rg"
+        },
+        {
+          title: "Exhaust Hood Cleaning",
+          desc: "Pressure washing is using a strong spray of water to clean dirt and grime off things like walls, cars, or sidewalks.",
+          img: "https://images.openai.com/thumbnails/d550c15636ac3165a86581a9c62694cb.webp",
+          price: 500,
+          video: "hUHubFokfpg"
+        }
+      ],
+      Meals: [
+        {
+          title: "Grilled Chicken",
+          desc: "Juicy grilled chicken with herbs.",
+          img: "https://via.placeholder.com/100",
+          price: 12.99,
+          video: "dQw4w9WgXcQ"
+        }
+      ],
+      Desserts: [
+        {
+          title: "Chocolate Cake",
+          desc: "Rich dark chocolate with fudge.",
+          img: "https://via.placeholder.com/100",
+          price: 6.75,
+          video: "C0DPdy98e4c"
+        }
+      ]
+    };
 
-<script>
-  const CategoryData = {
-    services: [
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      }
-    ],
-    service: [  <!-- ✅ COMMA added before this array -->
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      },
-      {
-        name: "Exhaust Hood System Cleaning",
-        title: "5'-10' Hood (Restaurants)",
-        desc: "Clean the greasy vent above a restaurant’s stove to stop fires and keep the air clean.",
-        img: "https://m.media-amazon.com/images/I/51uBzdRVRVL.__AC_SY445_SX342_QL70_FMwebp_.jpg",
-        price: 1500,
-        video: "YO2sl_2y9H4"
-      }
-    ]
-  };
+    function createYouTubeEmbed(videoId) {
+      return `
+        <iframe class="videoId"
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope;"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen>
+        </iframe>`;
+    }
 
-  const categoryContainer = document.getElementById('category');
-  const previewPane = document.getElementById('previewPane');
+    function renderCategories() {
+      const categoriesDiv = document.getElementById('categories');
+      const previewPane = document.getElementById('previewPane');
 
-  function createYouTubeEmbed(videoId) {
-    return `
-      <iframe class="videoId"
-        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&modestbranding=1&showinfo=0&rel=0"
-        frameborder="0"
-        allow="autoplay; encrypted-media"
-        allowfullscreen></iframe>`;
-  }
+      Object.keys(Data).forEach((cat, i) => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'category' + (i === 0 ? ' active' : '');
+        catDiv.textContent = cat;
+        catDiv.onclick = () => {
+          document.querySelectorAll('.category').forEach(el => el.classList.remove('active'));
+          catDiv.classList.add('active');
+          previewPane.scrollTo({
+            left: i * window.innerWidth,
+            behavior: 'smooth'
+          });
+        };
+        categoriesDiv.appendChild(catDiv);
 
-  function renderCategories() {
-    Object.keys(CategoryData).forEach((cat, i) => {
-      const catDiv = document.createElement('div');
-      catDiv.className = 'category' + (i === 0 ? ' active' : '');
-      catDiv.textContent = cat;
-      catDiv.onclick = () => {
-        document.querySelectorAll('.category').forEach(el => el.classList.remove('active'));
-        catDiv.classList.add('active');
-        previewPane.scrollTo({
-          left: i * window.innerWidth,
-          behavior: 'smooth'
+        const categoryColumn = document.createElement('div');
+        categoryColumn.className = 'category-column';
+
+        Data[cat].forEach(item => {
+          const slide = document.createElement('div');
+          slide.className = 'item-slide';
+          slide.innerHTML = `
+            ${createYouTubeEmbed(item.video)}
+            <div class="item-card">
+              <img src="${item.img}" alt="${item.title}" />
+              <h3>${item.title}</h3>
+              <p>${item.desc}</p>
+              <strong>Price: $${item.price.toFixed(2)}</strong>
+            </div>`;
+          categoryColumn.appendChild(slide);
         });
-      };
-      categoryContainer.appendChild(catDiv);
 
-      const categoryColumn = document.createElement('div');
-      categoryColumn.className = 'category-column';
-      CategoryData[cat].forEach(item => {
-        const slide = document.createElement('div');
-        slide.className = 'item-slide';
-        slide.innerHTML = `
-          ${createYouTubeEmbed(item.video)}
-          <div class="item-card">
-            <img src="${item.img}" alt="${item.title}" />
-            <h3>${item.title}</h3>
-            <p>${item.desc}</p>
-            <strong>Price: $${item.price.toFixed(2)}</strong>
-          </div>`;
-        categoryColumn.appendChild(slide);
+        previewPane.appendChild(categoryColumn);
       });
-      previewPane.appendChild(categoryColumn);
-    });
-  }
+    }
 
-  window.onload = () => {
-    renderCategories();
-  };
-</script>
-
+    window.onload = () => {
+      renderCategories();
+    };
+  </script></div>
 </body>
 </html>
